@@ -13,7 +13,9 @@
     <properties>
         <!-- Generic properties -->
         <java.version>1.8</java.version>
+        <!--
         <docker.registry.host>${env.docker_registry_host}</docker.registry.host>
+        -->
     </properties>
     <dependencies>
         <dependency>
@@ -76,33 +78,40 @@
     </dependencies>
     <build>
         <plugins>
+
+            <!-- plugin necesario para que corra el contenedor -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+
+            <!-- De momento hay que copiar el Dockerfile en target/ para que funcione -->
             <plugin>
                 <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.4.13</version>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.10</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <imageName>${env.docker_registry_host}/${project.artifactId}</imageName>
-                    <dockerDirectory>src/main/docker</dockerDirectory>
-                    <useConfigFile>true</useConfigFile>
-                    <registryUrl>${env.docker_registry_host}</registryUrl>
-                    <!--dockerHost>https://${docker.registry.host}</dockerHost-->
-                    <resources>
-                        <resource>
-                            <targetPath>/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.build.finalName}.jar</include>
-                        </resource>
-                    </resources>
-                    <forceTags>false</forceTags>
-                    <imageTags>
-                        <imageTag>${project.version}</imageTag>
-                    </imageTags>
+                    <contextDirectory>target</contextDirectory>
+                    <repository>jeantovar/spring-petclinic-mono</repository>
+                    <tag>${project.version}</tag>
+                    <buildArgs>
+                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                        <JAR_PATH>${project.basedir}/target</JAR_PATH>
+                    </buildArgs>
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 </project>

@@ -4,7 +4,8 @@
 *.iws
 
 #Maven
-/target/
+target/*
+!target/Dockerfile
 /bin/
 /log/
 
